@@ -1,1 +1,102 @@
-# magnaye-ca.github.io
+[index.html](https://github.com/user-attachments/files/31534508/index.html)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>magnaye-ca</title>
+<style>
+  body {
+    background-color: #e4e6eb; /* Quebec flag greyish-white */
+    color: #003399; /* Quebec flag navy blue */
+    font-family: "Courier New", Courier, monospace; /* Classic 90s font */
+    margin: 0;
+    padding: 30px;
+    text-align: center;
+  }
+  
+  .top-nav {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+  }
+
+  .top-nav a {
+    color: #003399;
+    text-decoration: underline;
+    margin-right: 15px;
+  }
+
+  .center-content {
+    margin-top: 20vh;
+  }
+
+  h1 {
+    font-size: 5rem;
+    margin: 0;
+    font-family: "Times New Roman", Times, serif;
+    letter-spacing: -2px;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: normal;
+    margin-top: 10px;
+  }
+
+  .menu-box {
+    margin: 50px auto;
+    padding: 15px 20px;
+    border: 3px solid #003399;
+    display: inline-block;
+    background-color: #d1d5de; 
+    box-shadow: 5px 5px 0px #001a4d; /* 90s sharp shadow effect */
+  }
+
+  .menu-box a {
+    color: #003399;
+    text-decoration: none;
+    font-weight: bold;
+    margin: 0 10px;
+    font-size: 1.1rem;
+  }
+
+  .menu-box a:hover {
+    background-color: #003399;
+    color: #e4e6eb;
+  }
+
+  .footer {
+    margin-top: 15vh;
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+
+  <div class="top-nav">
+    <div>
+      <a href="#">[GitHub]</a>
+      <a href="#">[LinkedIn]</a>
+    </div>
+    <div>(O)</div>
+  </div>
+
+  <div class="center-content">
+    <h1>magnaye-ca</h1>
+    <h2>designer | student</h2>
+
+    <div class="menu-box">
+      <a href="#">about me</a> | 
+      <a href="#">blog</a> | 
+      <a href="#">my store</a> | 
+      <a href="#">contact</a>
+    </div>
+  </div>
+
+  <div class="footer">
+    built by magnaye-ca
+  </div>
+
+</body>
+</html>
