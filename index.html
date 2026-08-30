@@ -370,6 +370,21 @@
   .modal-header-title{ font-family: var(--font-title); font-size: 1.9rem; font-weight: 900; color: var(--navy-dark); margin-bottom: 8px; }
   .modal-item-badge{ font-family: var(--font-mono); font-size: 0.95rem; font-weight: 700; color: #0b328a; background: #eef4fc; display: inline-block; padding: 4px 14px; border: 1.5px dashed var(--navy-dark); border-radius: 4px; margin-bottom: 16px; }
   .modal-body-text{ font-family: var(--font-mono); font-size: 0.9rem; color: #2c3e55; line-height: 1.5; margin-bottom: 24px; }
+  .modal-visit-link{
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0b328a;
+    background: #eef4fc;
+    display: inline-block;
+    padding: 8px 18px;
+    border: 1.5px dashed var(--navy-dark);
+    border-radius: 4px;
+    margin-bottom: 24px;
+    text-decoration: underline;
+    word-break: break-all;
+  }
+  .modal-visit-link:hover{ color: #08162d; background: #dfeaf9; }
   .return-home-btn{
     font-family: var(--font-mono); font-size: 0.95rem; font-weight: 700; color: #ffffff;
     background-color: var(--navy-dark); border: 2px solid var(--navy-dark); box-shadow: 4px 4px 0px #173667;
@@ -417,7 +432,7 @@
       <div class="nav-box">
         <div class="nav-row">
           <span class="nav-icon">👁️</span>
-          <a class="nav-link" href="javascript:void(0)" onclick="showUnderConstruction('about me')">about me</a>
+          <a class="nav-link" href="javascript:void(0)" onclick="showUnderConstruction('about me', true)">about me</a>
         </div>
         <div class="nav-row">
           <span class="nav-icon">🖥️</span>
@@ -455,17 +470,37 @@
 
   <div class="modal-backdrop" id="constructionModal" onclick="closeUnderConstruction(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
-      <div class="modal-barrier-icon">🚧</div>
-      <h2 class="modal-header-title">UNDER CONSTRUCTION</h2>
+      <div class="modal-barrier-icon" id="modalIcon">🚧</div>
+      <h2 class="modal-header-title" id="modalHeaderTitle">UNDER CONSTRUCTION</h2>
       <div class="modal-item-badge" id="modalSectionTitle">Page</div>
-      <p class="modal-body-text">This page is currently under construction and being crafted with care. Please check back soon!</p>
+      <p class="modal-body-text" id="modalBodyText">This page is currently under construction and being crafted with care. Please check back soon!</p>
+      <a class="modal-visit-link" id="modalVisitLink" href="#" target="_blank" rel="noopener" style="display:none;">visit magnaye-ca.univer.se &rarr;</a>
       <button class="return-home-btn" onclick="closeUnderConstruction()">&larr; Return to Main Page</button>
     </div>
   </div>
 
   <script>
-    function showUnderConstruction(section){
+    function showUnderConstruction(section, isAboutMe){
+      var icon = document.getElementById('modalIcon');
+      var headerTitle = document.getElementById('modalHeaderTitle');
+      var bodyText = document.getElementById('modalBodyText');
+      var visitLink = document.getElementById('modalVisitLink');
+
       document.getElementById('modalSectionTitle').textContent = section;
+
+      if(isAboutMe){
+        icon.textContent = '🙂';
+        headerTitle.textContent = 'HEY, THAT\'S ME!';
+        bodyText.textContent = 'Click below to check out my full about me page.';
+        visitLink.href = 'https://magnaye-ca.univer.se/';
+        visitLink.style.display = 'inline-block';
+      } else {
+        icon.textContent = '🚧';
+        headerTitle.textContent = 'UNDER CONSTRUCTION';
+        bodyText.textContent = 'This page is currently under construction and being crafted with care. Please check back soon!';
+        visitLink.style.display = 'none';
+      }
+
       document.getElementById('constructionModal').classList.add('active');
     }
     function closeUnderConstruction(){
