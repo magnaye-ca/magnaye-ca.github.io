@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Carlo Magnaye — Interactive Resume</title>
+<style>
+  :root {
+    --paper: #f3f0e9;
+    --ink: #101415;
+    --muted: #667174;
+    --lime: #d7ff3f;
+    --sky: #b9d7e5;
+    --wave-light: #d5eef4;
+    --wave-mid: #9ccddd;
+    --wave-dark: #275464;
+    --line: rgba(16, 20, 21, .22);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: #d8d5ce;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .resume {
+    width: min(1120px, calc(100% - 32px));
+    margin: 28px auto;
+    min-height: calc(100vh - 56px);
+    padding: clamp(28px, 6vw, 78px);
+    padding-bottom: 235px;
+    background: linear-gradient(rgba(255,255,255,.3), rgba(255,255,255,.3)), var(--paper);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 18px 45px rgba(0,0,0,.15);
+  }
+
+  .grid {
+    position: absolute;
+    inset: 0;
+    opacity: .22;
+    pointer-events: none;
+    background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: linear-gradient(to bottom, black, transparent 70%);
+  }
+  .topline, .content, footer { position: relative; z-index: 3; }
+
+  .topline {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    align-items: start;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 24px;
+  }
+  .name {
+    margin: 0;
+    font-size: clamp(2.2rem, 8vw, 6rem);
+    line-height: .85;
+    letter-spacing: -.09em;
+    text-transform: uppercase;
+    max-width: 700px;
+  }
+  .role {
+    margin: 18px 0 0;
+    font-size: .9rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+  }
+  .role em { font-family: Georgia, serif; letter-spacing: 0; }
+  .contact { min-width: 170px; font-size: .78rem; line-height: 1.35; }
+  .contact a { color: inherit; overflow-wrap: anywhere; }
+
+  .content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(38px, 7vw, 100px);
+    margin-top: 48px;
+  }
+  .section { margin-bottom: 42px; }
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 0 0 23px;
+    font-size: clamp(1.7rem, 4vw, 3.1rem);
+    font-weight: 400;
+    letter-spacing: -.07em;
+    text-transform: uppercase;
+  }
+  .section-title::after {
+    content: '↗'; display: grid; place-items: center;
+    width: 28px; height: 28px; border: 1.5px solid var(--ink); border-radius: 50%;
+    font-size: 1rem; letter-spacing: 0;
+  }
+  .item {
+    border-top: 1px solid var(--line);
+    padding: 16px 0;
+    transition: transform .2s ease, background .2s ease, padding .2s ease;
+  }
+  .item:hover { transform: translateX(8px); background: rgba(215,255,63,.3); padding-left: 12px; }
+  .item h3 { margin: 0 0 4px; font-size: 1.02rem; }
+  .item p { margin: 3px 0; font-size: .9rem; }
+  .meta { color: var(--muted); font-size: .78rem !important; }
+  .tag {
+    display: inline-block; padding: 3px 7px; margin-top: 6px; border: 1px solid var(--ink);
+    font-size: .68rem; text-transform: uppercase; letter-spacing: .08em;
+  }
+  .skills { display: grid; gap: 13px; }
+  .skill { border-bottom: 1px solid var(--line); padding: 9px 0; transition: color .2s ease, transform .2s ease; }
+  .skill:hover { color: #38525b; transform: translateX(8px); }
+  .skill strong { font-size: .98rem; }
+  .skill span { font-size: .85rem; color: var(--muted); }
+
+  .shape {
+    position: absolute; z-index: 1; border: 2px solid var(--ink);
+    transform: rotate(-18deg); pointer-events: none;
+  }
+  .shape.one { width: 230px; height: 230px; right: -70px; top: 330px; background: var(--sky); opacity: .8; }
+  .shape.two { width: 150px; height: 150px; left: -65px; bottom: 150px; background: var(--lime); opacity: .8; }
+  .shape.three { width: 80px; height: 80px; right: 14%; bottom: 245px; background: transparent; }
+
+  .wave-art {
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 230px;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .wave-art svg {
+    width: 160%;
+    height: 230px;
+    position: absolute;
+    left: -30%;
+    bottom: -1px;
+  }
+  .wave-light { fill: var(--wave-light); }
+  .wave-mid { fill: var(--wave-mid); }
+  .wave-dark { fill: var(--wave-dark); }
+  .wave-outline { fill: none; stroke: var(--ink); stroke-width: 2.2; vector-effect: non-scaling-stroke; }
+  .sun { fill: var(--lime); stroke: var(--ink); stroke-width: 2.2; vector-effect: non-scaling-stroke; transform-origin: center; animation: sunBob 6s ease-in-out infinite; }
+
+  .wave-layer { transform-box: fill-box; transform-origin: center; }
+  .wave-layer.back { animation: driftBack 12s ease-in-out infinite; }
+  .wave-layer.middle { animation: driftMiddle 9s ease-in-out infinite; }
+  .wave-layer.front { animation: driftFront 7s ease-in-out infinite; }
+
+  @keyframes driftBack {
+    0%, 100% { transform: translateX(-10px) translateY(0); }
+    50% { transform: translateX(18px) translateY(-5px); }
+  }
+  @keyframes driftMiddle {
+    0%, 100% { transform: translateX(12px) translateY(0); }
+    50% { transform: translateX(-19px) translateY(-7px); }
+  }
+  @keyframes driftFront {
+    0%, 100% { transform: translateX(-8px) translateY(0); }
+    50% { transform: translateX(22px) translateY(-9px); }
+  }
+  @keyframes sunBob {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-9px) rotate(7deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+  }
+
+  footer {
+    margin-top: 25px;
+    padding-top: 18px;
+    border-top: 2px solid var(--ink);
+    font-size: .75rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 720px) {
+    .resume { margin: 0; width: 100%; min-height: 100vh; box-shadow: none; padding-bottom: 190px; }
+    .topline { display: block; }
+    .contact { margin-top: 25px; }
+    .content { grid-template-columns: 1fr; gap: 0; margin-top: 35px; }
+    .shape.one { right: -120px; }
+    .wave-art, .wave-art svg { height: 180px; }
+  }
+</style>
+</head>
+<body>
+  <main class="resume">
+    <div class="grid"></div>
+    <div class="shape one"></div>
+    <div class="shape two"></div>
+    <div class="shape three"></div>
+
+    <header class="topline">
+      <div>
+        <h1 class="name">Carlo<br>Magnaye</h1>
+        <p class="role">Interactive Media Design <em>student</em></p>
+      </div>
+      <div class="contact">
+        <strong>Contact</strong><br>
+        <a href="mailto:camagnaye@myseneca.ca">camagnaye@myseneca.ca</a><br><br>
+        <strong>Location</strong><br>
+        Great Toronto<br>Area, ON
+      </div>
+    </header>
+
+    <section class="content">
+      <div>
+        <section class="section">
+          <h2 class="section-title">Education</h2>
+          <article class="item" title="Interactive Media Design at Seneca Polytechnic">
+            <h3>Seneca Polytechnic</h3>
+            <p>Interactive Media Design (INM)</p>
+            <p class="meta">Hybrid · May 2026 — Present</p>
+            <span class="tag">Design + technology</span>
+          </article>
+          <article class="item" title="Audio engineering education at RAIS">
+            <h3>RAIS Recording Arts<br>Institute of Saskatoon</h3>
+            <p>Audio Engineer Diploma</p>
+            <p class="meta">Completed Coursework · Sept 2022 — Feb 2023</p>
+            <span class="tag">Audio production</span>
+          </article>
+        </section>
+
+        <section class="section">
+          <h2 class="section-title">Skills</h2>
+          <div class="skills">
+            <div class="skill"><strong>Adobe Photoshop</strong><br><span>Adobe Certified Professional</span></div>
+            <div class="skill"><strong>UX/UI Design</strong><br><span>Wireframing · Interactive prototypes</span></div>
+            <div class="skill"><strong>Audio Engineering</strong><br><span>Dialogue cleanup · Sound design</span></div>
+            <div class="skill"><strong>DSLR Photography</strong><br><span>Manual · Exposure · Focus · Lighting</span></div>
+            <div class="skill"><strong>Customer Service</strong><br><span>Active listening · Patience · Order accuracy</span></div>
+            <div class="skill"><strong>Batch Prep</strong><br><span>Food safety · Time management · Pressure</span></div>
+          </div>
+        </section>
+      </div>
+
+      <div>
+        <section class="section">
+          <h2 class="section-title">Work</h2>
+          <article class="item" title="Freelance multidisciplinary designer">
+            <h3>Freelance Multidisciplinary<br>Designer</h3>
+            <p><em>Independent project work</em></p>
+            <p class="meta">Toronto, ON · Sept 2025 — Present</p>
+          </article>
+          <article class="item" title="Volunteer audio engineer at MCG Productions">
+            <h3>Audio Engineer <span class="meta">(Volunteer)</span></h3>
+            <p>MCG Productions</p>
+            <p class="meta">Saskatoon, SK / GTA, ON · Sept 2022 — Present</p>
+          </article>
+          <article class="item" title="Canadian Armed Forces Reserves applicant">
+            <h3>Canadian Armed Forces Reserves</h3>
+            <p>Applicant (Cook) · 12 Canadian Brigade Group</p>
+            <p class="meta">GTA, ON · 2025 — Present</p>
+            <span class="tag">Food operations</span>
+          </article>
+          <article class="item" title="Barista at Starbucks USASK Culinary">
+            <h3>Barista @ Starbucks</h3>
+            <p>USASK Culinary</p>
+            <p class="meta">Saskatoon, SK · Aug 2023 — Aug 2024</p>
+          </article>
+        </section>
+      </div>
+    </section>
+
+    <footer>Carlo Magnaye — interactive resume / 2026</footer>
+
+    <div class="wave-art" aria-hidden="true">
+      <svg viewBox="0 0 1600 240" preserveAspectRatio="none">
+        <circle class="sun" cx="1250" cy="48" r="26"></circle>
+        <g class="wave-layer back">
+          <path class="wave-light" d="M0,100 C95,20 210,155 335,78 C448,8 580,154 714,74 C862,-12 1000,135 1130,65 C1280,-18 1410,130 1600,42 L1600,240 L0,240 Z"></path>
+          <path class="wave-outline" d="M0,100 C95,20 210,155 335,78 C448,8 580,154 714,74 C862,-12 1000,135 1130,65 C1280,-18 1410,130 1600,42"></path>
+        </g>
+        <g class="wave-layer middle">
+          <path class="wave-mid" d="M0,142 C120,75 222,204 375,129 C522,56 634,205 784,125 C930,45 1050,191 1195,116 C1330,47 1450,168 1600,95 L1600,240 L0,240 Z"></path>
+          <path class="wave-outline" d="M0,142 C120,75 222,204 375,129 C522,56 634,205 784,125 C930,45 1050,191 1195,116 C1330,47 1450,168 1600,95"></path>
+        </g>
+        <g class="wave-layer front">
+          <path class="wave-dark" d="M0,180 C120,118 270,229 430,166 C575,109 730,229 900,161 C1060,97 1200,213 1360,151 C1460,112 1530,148 1600,130 L1600,240 L0,240 Z"></path>
+          <path class="wave-outline" d="M0,180 C120,118 270,229 430,166 C575,109 730,229 900,161 C1060,97 1200,213 1360,151 C1460,112 1530,148 1600,130"></path>
+        </g>
+      </svg>
+    </div>
+  </main>
+</body>
+</html>
