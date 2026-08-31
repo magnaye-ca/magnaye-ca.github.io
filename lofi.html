@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Fireplace and Lofi study companion">
+  <title>Fireplace & Lofi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#080808;--card:#121212;--line:#292929;--text:#f0f0f0;--muted:#9b9b9b;--ember:#ff4d00;--amber:#ffb34d}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:ui-monospace,SFMono-Regular,Consolas,monospace;min-height:100vh}.wrap{max-width:1200px;margin:auto;padding:22px}.top{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}.brand h1{font-family:'Dancing Script',cursive;font-size:36px;font-weight:700;letter-spacing:.5px;margin:0;color:var(--ember)}.brand p{font-size:11px;color:var(--muted);margin:6px 0 0}.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.85fr);gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:15px}.scene{padding:0;overflow:hidden;position:relative}.scene canvas{display:block;width:100%;aspect-ratio:16/9;image-rendering:pixelated;cursor:pointer}.caption{position:absolute;bottom:10px;left:11px;font-size:11px;background:#080808c9;padding:6px 8px;border-radius:5px;color:#ddd}.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.label{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.7px;margin:12px 0 6px}.row{display:flex;gap:7px;flex-wrap:wrap}.btn,select{font:inherit;font-size:11px;color:#ddd;background:#191919;border:1px solid #333;border-radius:6px;padding:8px 9px;cursor:pointer}.btn:hover,select:hover{border-color:#666}.btn.active,.primary{background:#30180d;border-color:var(--ember);color:var(--ember)}.primary{font-weight:bold}.wide{width:100%}input[type=range]{width:100%;accent-color:var(--ember)}.range-row{display:grid;grid-template-columns:1fr 42px;gap:9px;align-items:center;color:var(--muted);font-size:11px}.timer{text-align:center}.time{font-size:44px;letter-spacing:3px;color:var(--amber);margin:15px 0}.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.note{width:100%;resize:vertical;min-height:60px;background:#0f0f0f;border:1px solid #333;border-radius:6px;padding:8px 9px;color:#ddd;font-size:11px}.status{font-size:10px;color:var(--muted);margin-top:6px}.zen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000000e6;display:flex;align-items:center;justify-content:center;z-index:9999;opacity:0;pointer-events:none;transition:.3s}.zen.show{opacity:1;pointer-events:auto}.zen-scene{position:relative}.zen-scene canvas{display:block;width:100%;aspect-ratio:16/9;image-rendering:pixelated;cursor:pointer}.zenbar{position:absolute;bottom:10px;left:10px;display:flex;gap:8px}.zenclose{position:absolute;top:10px;right:10px}
+
+    /* Original CSS-only ember-drift footer effect — no external images, no copyright */
+    .ember-footer{position:relative;height:70px;margin-top:18px;overflow:hidden;border-radius:10px;background:linear-gradient(to top,#1a0d06,transparent)}
+    .ember-particle{position:absolute;bottom:-10px;border-radius:50%;background:radial-gradient(circle,#ffe9a8 0%,#ff9c3f 55%,transparent 80%);opacity:0;animation:emberRise linear infinite;filter:blur(.2px)}
+    @keyframes emberRise{
+      0%{transform:translateY(0) translateX(0) scale(1);opacity:0}
+      10%{opacity:.9}
+      50%{transform:translateY(-38px) translateX(6px) scale(1.1);opacity:.7}
+      90%{opacity:.15}
+      100%{transform:translateY(-70px) translateX(-4px) scale(.6);opacity:0}
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="top"><div class="brand"><h1>Fireplace & Lofi</h1><p>Dynamic ambient audio · focus timer · no uploads needed</p></div><button class="btn" id="zenBtn">⛶ Zen mode</button></header>
+    <section class="grid">
+      <div>
+        <div class="card scene" id="scene"><canvas id="fireplace" width="480" height="270" aria-label="Animated pixel fireplace"></canvas><div class="caption" id="sceneStatus">Audio standby — click Start Audio</div></div>
+        <div class="card" style="margin-top:16px"><strong style="font-size:12px">Atmosphere</strong>
+          <span class="label">Fire intensity</span><div class="row" id="intensity"><button class="btn" data-v="gentle">Gentle</button><button class="btn active" data-v="cozy">Cozy</button><button class="btn" data-v="roaring">Roaring</button></div>
+          <span class="label">Window weather</span><div class="row" id="weather"><button class="btn active" data-v="clear">Stars</button><button class="btn" data-v="rain">Rain</button><button class="btn" data-v="snow">Snow</button></div>
+          <span class="label">Room palette</span><select id="theme"><option value="cabin">Warm cabin</option><option value="twilight">Twilight stone</option><option value="amber">Retro amber</option><option value="night">Deep midnight</option></select>
+          <span class="label">Scene extras</span><div class="row"><button class="btn active" id="catBtn">Cat: ON</button><button class="btn active" id="crtBtn">CRT: ON</button></div>
+        </div>
+      </div>
+      <aside>
+        <div class="card"><strong style="font-size:12px">Ambient Sound Mixer</strong><span class="label">Master audio</span><button class="btn primary wide" id="audioBtn">▶ Start Audio</button>
+          <span class="label">background noise</span><div class="range-row"><input id="fireVol" type="range" min="0" max="1" step=".01" value=".65"><span id="fireVal">65%</span></div>
+          <span class="label">Lofi volume</span><div class="range-row"><input id="lofiVol" type="range" min="0" max="1" step=".01" value=".35"><span id="lofiVal">35%</span></div>
+          <span class="label">Lofi source</span>
+          <select class="wide" id="mood">
+            <option value="midnight1">Midnight Study (1)</option>
+            <option value="rainy1">Rainy Café (1)</option>
+            <option value="rainy2">Rainy Café (1.2)</option>
+            <option value="autumn1">Autumn Hearth (1)</option>
+            <option value="autumn2">Autumn Hearth (1.2)</option>
+            <option value="cosmic1">Cosmic Embers (1)</option>
+            <option value="cosmic2">Cosmic Embers (1.2)</option>
+            <option value="custom">My own audio file…</option>
+          </select>
+          <div class="file-row" id="fileRow" style="display:none"><input type="file" id="audioFile" accept="audio/*"></div>
+        </div>
+        <div class="card timer" style="margin-top:16px"><strong style="font-size:12px">Study Focus Timer</strong><div class="modes" style="margin-top:12px"><button class="btn active" data-time="1500">25m Focus</button><button class="btn" data-time="300">5m Break</button><button class="btn" data-time="900">15m Rest</button></div><div class="time" id="time">25:00</div><div class="row" style="justify-content:center"><button class="btn primary" id="timerBtn">▶ Start</button><button class="btn" id="resetBtn">Reset</button></div><span class="label" style="text-align:left">Current objective</span><textarea class="note" placeholder="What are you studying right now?"></textarea><p class="status" id="sessions">0 focus sessions completed</p></div>
+      </aside>
+    </section>
+    <div class="ember-footer" id="emberFooter" aria-hidden="true"></div>
+  </main>
+  <div class="zen" id="zen"><div class="zen-scene"><canvas id="zenCanvas" width="480" height="270"></canvas><button class="btn zenclose" id="zenClose">Exit (Esc)</button><div class="zenbar"><button class="btn primary" id="zenAudio">Play / Pause</button><button class="btn" id="zenPoke">Poke embers</button></div></div></div>
+  <script>
+  (()=>{
+    const c=document.getElementById('fireplace'), zc=document.getElementById('zenCanvas'), ctx=c.getContext('2d'), zctx=zc.getContext('2d');
+    let intensity='cozy', weather='clear', theme='cabin', cat=true, crt=true, t=0, sparks=[], audioOn=false, timer=null, remaining=1500, sessions=0, selectedTime=1500;
+    const palettes={cabin:['#261c18','#3b2b24','#1c1410','#42332c'],twilight:['#1b1b2f','#24243e','#161622','#2d2d44'],amber:['#261b11','#382819','#1a120b','#422f1d'],night:['#110e1a','#1a1626','#0c0a12','#231e33']};
+    let rainDrops=[], snowFlakes=[], starTwinkles=[];
+    function initWeatherParticles(){
+      rainDrops=Array.from({length:22},()=>({x:45+Math.random()*82,y:30+Math.random()*120,speed:5+Math.random()*3}));
+      snowFlakes=Array.from({length:22},()=>({x:45+Math.random()*82,y:30+Math.random()*120,speed:.6+Math.random()*.8,drift:Math.random()*2-1,phase:Math.random()*100}));
+      starTwinkles=Array.from({length:12},()=>({x:45+Math.random()*82,y:35+Math.random()*90,phase:Math.random()*100}));
+    }
+    initWeatherParticles();
+
+    // ---- Decorative CSS ember-drift footer (original, generated in-browser, no external assets) ----
+    (function buildEmberFooter(){
+      const host=document.getElementById('emberFooter');
+      const count=26;
+      for(let i=0;i<count;i++){
+        const p=document.createElement('div');
+        p.className='ember-particle';
+        const size=2+Math.random()*4;
+        p.style.width=size+'px';
+        p.style.height=size+'px';
+        p.style.left=(Math.random()*100)+'%';
+        p.style.animationDuration=(3+Math.random()*4)+'s';
+        p.style.animationDelay=(Math.random()*6)+'s';
+        host.appendChild(p);
+      }
+    })();
+
+    // ---- Orange tabby pixel cat, fully canvas-drawn & animated ----
+    let nextBlinkAt=180+Math.random()*240, blinkFrame=0;
+    function px(target,x,y,w,h,color){target.fillStyle=color;target.fillRect(Math.round(x),Math.round(y),w,h)}
+    function drawCat(target,baseX,baseY,t){
+      const breathe=Math.sin(t/26)*1.1;
+      const tailSway=Math.sin(t/18)*7;
+      const earTwitch=Math.sin(t/9)>0.94?-2:0;
+      if(t>=nextBlinkAt){blinkFrame=6;nextBlinkAt=t+180+Math.random()*240;}
+      const eyesClosed=blinkFrame>0; if(blinkFrame>0)blinkFrame--;
+
+      const orange='#e0812f', orangeDk='#b5601c', white='#fdf6ea', dark='#241b16', pink='#f2a8a0';
+      const x=baseX, y=baseY+breathe;
+
+      px(target,x+34,y-6+tailSway*0.15,7,20,orange);
+      px(target,x+34,y-16+tailSway*0.4,7,12,orangeDk);
+      px(target,x+35,y-20+tailSway*0.6,5,6,white);
+
+      px(target,x-4,y+22,46,4,'#241a14');
+
+      px(target,x,y-2,38,24,orange);
+      px(target,x,y+10,38,12,white);
+      px(target,x+3,y-2,6,20,orangeDk);
+      px(target,x+16,y-2,6,20,orangeDk);
+      px(target,x+28,y-2,6,20,orangeDk);
+
+      px(target,x+2,y+20,7,4,white);
+      px(target,x+14,y+20,7,4,white);
+      px(target,x+27,y+20,7,4,white);
+
+      px(target,x+6,y-22,26,20,orange);
+      px(target,x+9,y-10,20,9,white);
+      px(target,x+6,y-28+earTwitch,7,8,orange);
+      px(target,x+8,y-26+earTwitch,3,4,white);
+      px(target,x+25,y-28-earTwitch,7,8,orange);
+      px(target,x+27,y-26-earTwitch,3,4,white);
+      px(target,x+9,y-22,3,6,orangeDk);
+      px(target,x+22,y-22,3,6,orangeDk);
+      if(eyesClosed){
+        px(target,x+11,y-15,4,1,dark);
+        px(target,x+22,y-15,4,1,dark);
+      } else {
+        px(target,x+11,y-16,4,4,dark);
+        px(target,x+22,y-16,4,4,dark);
+        px(target,x+12,y-16,1,1,white);
+        px(target,x+23,y-16,1,1,white);
+      }
+      px(target,x+17,y-11,3,2,pink);
+      px(target,x+15,y-8,1,1,dark);
+      px(target,x+21,y-8,1,1,dark);
+    }
+
+    function draw(target){const p=palettes[theme], w=480,h=270;target.imageSmoothingEnabled=false;target.fillStyle=p[0];target.fillRect(0,0,w,h);target.fillStyle=p[1];for(let y=0;y<165;y+=18)for(let x=(y/18%2)*22;x<w;x+=44)target.fillRect(x,y,40,14);
+      target.fillStyle='#070914';target.fillRect(38,30,100,120);target.strokeStyle='#47362a';target.lineWidth=8;target.strokeRect(38,30,100,120);target.fillStyle='#fff4ca';target.fillRect(102,48,12,12);
+      if(weather==='clear'){target.fillStyle='#fff';starTwinkles.forEach(s=>{if(Math.sin((t+s.phase)/12)>0)target.fillRect(s.x,s.y,2,2)});}
+      if(weather==='rain'){target.strokeStyle='#7aa9d4';target.lineWidth=1;rainDrops.forEach(d=>{d.y+=d.speed;if(d.y>150){d.y=30;d.x=45+Math.random()*82}target.beginPath();target.moveTo(d.x,d.y);target.lineTo(d.x-4,d.y+13);target.stroke()});}
+      if(weather==='snow'){target.fillStyle='#fff';snowFlakes.forEach(s=>{s.y+=s.speed;s.x+=Math.sin((t+s.phase)/25)*.15+s.drift*.05;if(s.y>150){s.y=30;s.x=45+Math.random()*82}target.fillRect(s.x,s.y,3,3)});}
+      target.fillStyle=p[2];target.fillRect(0,164,w,106);target.fillStyle='#2b211c';for(let x=0;x<w;x+=60)target.fillRect(x,178,56,3);
+      target.fillStyle=p[3];target.fillRect(155,106,190,125);target.fillStyle='#100b09';target.fillRect(177,132,146,90);target.fillStyle='#624334';target.fillRect(145,99,210,13);
+      const m=intensity==='gentle'?.65:intensity==='roaring'?1.45:1;for(let i=0;i<20;i++){let x=205+(i*17%95), base=210, fh=(18+((i*19+t*3)%44))*m;target.fillStyle=i%3===0?'#ffec70':i%3===1?'#ff9c28':'#f44313';target.fillRect(x,base-fh,9,fh);target.fillRect(x-4,base-fh+8,17,fh-8)}
+      target.fillStyle='#5d3520';target.fillRect(190,211,115,10);target.fillStyle='#a34c20';target.fillRect(199,216,100,7);
+      if(cat) drawCat(target,357,226,t);
+      sparks=sparks.filter(s=>s.life++<s.maxLife);sparks.forEach(s=>{s.x+=s.vx;s.y+=s.vy;s.vy+=.08;target.fillStyle=s.color;target.fillRect(s.x,s.y,s.size,s.size)}); if(crt){target.fillStyle='#00000035';for(let y=0;y<h;y+=4)target.fillRect(0,y,w,2)}
+    }
+    function loop(){t++;draw(ctx);if(document.getElementById('zen').classList.contains('show'))draw(zctx);requestAnimationFrame(loop)}loop();
+    function poke(){for(let i=0;i<28;i++){let a=Math.PI+Math.random()*Math.PI,v=.8+Math.random()*2.5;sparks.push({x:250+Math.random()*30-15,y:210,vx:Math.cos(a)*v,vy:-Math.abs(Math.sin(a)*v),life:0,maxLife:20+Math.random()*35,size:Math.random()>0.5?3:2,color:Math.random()>.25?'#ffec70':'#ff8533'})}pop()}
+    c.onclick=poke; zc.onclick=poke;document.getElementById('zenPoke').onclick=poke;
+    function group(id,fn){document.querySelectorAll('#'+id+' .btn').forEach(b=>b.onclick=()=>{document.querySelectorAll('#'+id+' .btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');fn(b.dataset.v)})}group('intensity',v=>intensity=v);group('weather',v=>{weather=v;initWeatherParticles()});document.getElementById('theme').onchange=e=>theme=e.target.value;
+    document.getElementById('catBtn').onclick=e=>{cat=!cat;e.target.classList.toggle('active',cat);e.target.textContent='Cat: '+(cat?'ON':'OFF')};document.getElementById('crtBtn').onclick=e=>{crt=!crt;e.target.classList.toggle('active',crt);e.target.textContent='CRT: '+(crt?'ON':'OFF')};
+
+    // ---- Audio engine ----
+    // Simplified folder paths: assets/<mood>/<file>.wav
+    const TRACKS={
+      midnight1: 'assets/midnight/Midnight Study (1).wav',
+      rainy1:    'assets/rainy/Rainy Café (1).wav',
+      rainy2:    'assets/rainy/Rainy Café (1.2).wav',
+      autumn1:   'assets/autumn/Autumn Hearth (1).wav',
+      autumn2:   'assets/autumn/Autumn Hearth (1.2).wav',
+      cosmic1:   'assets/cosmic/Cosmic Embers (1).wav',
+      cosmic2:   'assets/cosmic/Cosmic Embers (1.2).wav',
+    };
+    let ac, master, fireGain, lofiGain, noise, moodAudioEl=null, moodSourceNode=null, customAudioEl=null, customSourceNode=null, loadedTrackKey=null;
+    function noiseSource(){const b=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;const s=ac.createBufferSource();s.buffer=b;s.loop=true;return s}
+    function ensureContext(){if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();master=ac.createGain();master.gain.value=.45;master.connect(ac.destination);fireGain=ac.createGain();lofiGain=ac.createGain();fireGain.connect(master);lofiGain.connect(master);noise=noiseSource();const f=ac.createBiquadFilter();f.type='lowpass';f.frequency.value=750;noise.connect(f);f.connect(fireGain);noise.start();}}
+
+    function loadMoodTrack(key){
+      if(loadedTrackKey===key && moodAudioEl) return; // already loaded
+      if(moodAudioEl){ moodAudioEl.pause(); moodAudioEl.src=''; }
+      const path=encodeURI(TRACKS[key]);
+      moodAudioEl=new Audio(path);
+      moodAudioEl.loop=true;
+      moodAudioEl.volume=parseFloat(document.getElementById('lofiVol').value);
+      moodSourceNode=ac.createMediaElementSource(moodAudioEl);
+      moodSourceNode.connect(lofiGain);
+      loadedTrackKey=key;
+    }
+
+    function startAudio(){
+      ensureContext();
+      audioOn=!audioOn;
+      const mood=document.getElementById('mood').value;
+      if(audioOn){
+        ac.resume();
+        if(mood==='custom'){
+          if(customAudioEl) customAudioEl.play();
+        } else {
+          loadMoodTrack(mood);
+          moodAudioEl.play().catch(()=>{});
+        }
+      } else {
+        ac.suspend();
+        if(moodAudioEl) moodAudioEl.pause();
+        if(customAudioEl) customAudioEl.pause();
+      }
+      document.getElementById('audioBtn').textContent=audioOn?'❚❚ Pause Audio':'▶ Start Audio';
+      document.getElementById('zenAudio').textContent=audioOn?'Pause':'Play';
+      document.getElementById('sceneStatus').textContent=audioOn?'Crackle + lofi playing':'Audio standby — click Start Audio';
+    }
+    function pop(){if(!audioOn||!ac)return;const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=90+Math.random()*260;g.gain.setValueAtTime(.08,ac.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+.08);o.connect(g);g.connect(fireGain);o.start();o.stop(ac.currentTime+.1)}
+    document.getElementById('audioBtn').onclick=startAudio;document.getElementById('zenAudio').onclick=startAudio;
+    function bindRange(id,getGain,label){document.getElementById(id).oninput=e=>{document.getElementById(label).textContent=Math.round(e.target.value*100)+'%';const g=getGain();if(g)g.gain.value=e.target.value; if(id==='lofiVol'){ if(moodAudioEl) moodAudioEl.volume=e.target.value; if(customAudioEl) customAudioEl.volume=e.target.value; }}}
+    bindRange('fireVol',()=>fireGain,'fireVal');bindRange('lofiVol',()=>lofiGain,'lofiVal');
+
+    // Mood / custom source switching
+    const moodSelect=document.getElementById('mood'), fileRow=document.getElementById('fileRow'), fileInput=document.getElementById('audioFile');
+    moodSelect.onchange=()=>{
+      const val=moodSelect.value, isCustom=val==='custom';
+      fileRow.style.display=isCustom?'flex':'none';
+      if(moodAudioEl) moodAudioEl.pause();
+      if(customAudioEl) customAudioEl.pause();
+      if(!audioOn) return;
+      ensureContext();
+      if(isCustom){ if(customAudioEl) customAudioEl.play(); }
+      else { loadMoodTrack(val); moodAudioEl.play().catch(()=>{}); }
+    };
+    fileInput.onchange=e=>{
+      const file=e.target.files[0]; if(!file) return;
+      ensureContext();
+      if(customAudioEl){ customAudioEl.pause(); customAudioEl.src=''; }
+      customAudioEl=new Audio(URL.createObjectURL(file));
+      customAudioEl.loop=true;
+      customAudioEl.volume=parseFloat(document.getElementById('lofiVol').value);
+      customSourceNode=ac.createMediaElementSource(customAudioEl);
+      customSourceNode.connect(lofiGain);
+      if(audioOn) customAudioEl.play();
+    };
+
+    // ---- Study timer ----
+    document.querySelectorAll('.modes .btn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.modes .btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');selectedTime=remaining=Number(b.dataset.time);updateTime();clearInterval(timer);timer=null;document.getElementById('timerBtn').textContent='▶ Start'});
+    function updateTime(){document.getElementById('time').textContent=Math.floor(remaining/60).toString().padStart(2,'0')+':'+(remaining%60).toString().padStart(2,'0')}
+    document.getElementById('timerBtn').onclick=()=>{if(timer){clearInterval(timer);timer=null;document.getElementById('timerBtn').textContent='▶ Start'}else{timer=setInterval(()=>{if(--remaining<=0){clearInterval(timer);timer=null;sessions++;document.getElementById('sessions').textContent=sessions+' focus sessions completed';remaining=0;beep();document.getElementById('timerBtn').textContent='▶ Start'}updateTime()},1000);document.getElementById('timerBtn').textContent='❚❚ Pause'}};
+    document.getElementById('resetBtn').onclick=()=>{clearInterval(timer);timer=null;remaining=selectedTime;updateTime();document.getElementById('timerBtn').textContent='▶ Start'};
+    function beep(){if(!ac)return;const wasSuspended=ac.state==='suspended';if(wasSuspended)ac.resume();[523,659,784].forEach((n,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=n;g.gain.setValueAtTime(.0001,ac.currentTime+i*.15);g.gain.exponentialRampToValueAtTime(.15,ac.currentTime+i*.15+.03);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+i*.15+.6);o.connect(g);g.connect(master);o.start(ac.currentTime+i*.15);o.stop(ac.currentTime+i*.15+.65)});if(wasSuspended)setTimeout(()=>ac.suspend(),700)}
+
+    const zen=document.getElementById('zen');document.getElementById('zenBtn').onclick=()=>zen.classList.add('show');document.getElementById('zenClose').onclick=()=>zen.classList.remove('show');window.addEventListener('keydown',e=>{if(e.key==='Escape')zen.classList.remove('show')});
+  })();
+  </script>
+</body>
+</html>
