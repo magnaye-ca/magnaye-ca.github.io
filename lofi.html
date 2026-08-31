@@ -159,15 +159,15 @@
     document.getElementById('catBtn').onclick=e=>{cat=!cat;e.target.classList.toggle('active',cat);e.target.textContent='Cat: '+(cat?'ON':'OFF')};document.getElementById('crtBtn').onclick=e=>{crt=!crt;e.target.classList.toggle('active',crt);e.target.textContent='CRT: '+(crt?'ON':'OFF')};
 
     // ---- Audio engine ----
-    // Simplified folder paths: assets/<mood>/<file>.wav
+    // Flat file layout: everything sits in the same folder as this HTML file
     const TRACKS={
-      midnight1: 'assets/midnight/Midnight Study (1).wav',
-      rainy1:    'assets/rainy/Rainy Café (1).wav',
-      rainy2:    'assets/rainy/Rainy Café (1.2).wav',
-      autumn1:   'assets/autumn/Autumn Hearth (1).wav',
-      autumn2:   'assets/autumn/Autumn Hearth (1.2).wav',
-      cosmic1:   'assets/cosmic/Cosmic Embers (1).wav',
-      cosmic2:   'assets/cosmic/Cosmic Embers (1.2).wav',
+      midnight1: 'Midnight Study (1).mp3',
+      rainy1:    'Rainy Café (1).mp3',
+      rainy2:    'Rainy Café (1.2).mp3',
+      autumn1:   'Autumn Hearth (1).mp3',
+      autumn2:   'Autumn Hearth (1.2).mp3',
+      cosmic1:   'Cosmic Embers (1).mp3',
+      cosmic2:   'Cosmic Embers (1.2).mp3',
     };
     let ac, master, fireGain, lofiGain, noise, moodAudioEl=null, moodSourceNode=null, customAudioEl=null, customSourceNode=null, loadedTrackKey=null;
     function noiseSource(){const b=ac.createBuffer(1,ac.sampleRate*2,ac.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;const s=ac.createBufferSource();s.buffer=b;s.loop=true;return s}
