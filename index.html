@@ -48,7 +48,7 @@
     width: 100%;
     padding: 24px 36px;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     position: relative;
     z-index: 20;
@@ -280,16 +280,11 @@
   }
 
   .footer-credit{
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
+    font-family: var(--font-cursive);
+    font-size: 1.35rem;
     font-weight: 700;
-    color: var(--navy-dark);
-    background: #ffffff;
-    border: 2px solid var(--navy-dark);
-    box-shadow: 3px 3px 0px var(--navy-dark);
-    padding: 6px 16px;
-    border-radius: 3px;
-    letter-spacing: 0.5px;
+    font-style: italic;
+    color: var(--navy-accent);
     user-select: none;
   }
 
@@ -405,10 +400,6 @@
 <body>
 
   <header>
-    <div class="header-left">
-      <a class="icon-btn" href="https://github.com/" target="_blank" rel="noopener">[GitHub]</a>
-      <a class="icon-btn" href="https://linkedin.com/" target="_blank" rel="noopener">[LinkedIn]</a>
-    </div>
     <div class="header-right">
       <div class="smile-badge-container" title="hey!">
         <svg class="circling-text-svg" viewBox="0 0 100 100">
@@ -458,12 +449,14 @@
     </div>
   </main>
 
+  <!-- "built by" text now unboxed, styled in the site's cursive font -->
   <footer>
     <div class="footer-credit">built by carlo angelo magnaye</div>
   </footer>
 
-  <a href="javascript:void(0)" onclick="showUnderConstruction('Carlo Angelo Magnaye Profile')" class="avatar-callout" title="Carlo Angelo Magnaye">
-    <div class="avatar-speech">hey this <span class="arrow-text">&rarr;</span><br>is me lol</div>
+  <!-- Pixel avatar back to its original bottom-right position, linking straight to the CV page -->
+  <a href="carlo-cvwaves.html" class="avatar-callout" title="View Carlo Angelo Magnaye's CV">
+    <div class="avatar-speech">my creative cv~ish <span class="arrow-text">&rarr;</span></div>
     <div class="avatar-circle">
       <img src="magnaye-ca pixels.jpg" alt="Carlo Angelo Magnaye Pixel Avatar" class="pixel-art">
     </div>
