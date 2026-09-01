@@ -423,11 +423,11 @@
       <div class="nav-box">
         <div class="nav-row">
           <span class="nav-icon">👁️</span>
-          <a class="nav-link" href="javascript:void(0)" onclick="showUnderConstruction('about me', true)">about me</a>
+          <a class="nav-link" href="javascript:void(0)" onclick="showUnderConstruction('about me', 'about')">about me</a>
         </div>
         <div class="nav-row">
           <span class="nav-icon">🖥️</span>
-          <a class="nav-link" href="javascript:void(0)" onclick="showUnderConstruction('blog')">blog</a>
+          <a class="nav-link" href="javascript:void(0)" onclick="showUnderConstruction('blog', 'blog')">blog</a>
         </div>
         <div class="nav-row">
           <span class="nav-icon">🏢</span>
@@ -474,7 +474,7 @@
   </div>
 
   <script>
-    function showUnderConstruction(section, isAboutMe){
+    function showUnderConstruction(section, type){
       var icon = document.getElementById('modalIcon');
       var headerTitle = document.getElementById('modalHeaderTitle');
       var bodyText = document.getElementById('modalBodyText');
@@ -482,11 +482,19 @@
 
       document.getElementById('modalSectionTitle').textContent = section;
 
-      if(isAboutMe){
+      if(type === 'about'){
         icon.textContent = '🙂';
         headerTitle.textContent = 'HEY, THAT\'S ME!';
         bodyText.textContent = 'Click below to check out my full about me page.';
         visitLink.href = 'https://magnaye-ca.univer.se/';
+        visitLink.textContent = 'visit magnaye-ca.univer.se \u2192';
+        visitLink.style.display = 'inline-block';
+      } else if(type === 'blog'){
+        icon.textContent = '✍️';
+        headerTitle.textContent = 'HEY, GLAD YOU STOPPED BY!';
+        bodyText.textContent = 'This is where I jot down thoughts, projects, and behind-the-scenes stuff. Click below to read the full blog.';
+        visitLink.href = 'https://carlo-blogson.univer.se/';
+        visitLink.textContent = 'visit carlo-blogson.univer.se \u2192';
         visitLink.style.display = 'inline-block';
       } else {
         icon.textContent = '🚧';
