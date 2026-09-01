@@ -554,7 +554,9 @@
 
         <button type="submit" class="submit-contact-btn" id="contactSubmitBtn" onclick="submitContactForm(event)">Send Message</button>
       </form>
-      <button class="return-home-btn" style="width:100%; background:#ffffff; color:var(--navy-dark); box-shadow:4px 4px 0px var(--navy-dark);" onclick="closeContactForm()">&larr; Close</button>
+
+      <button class="return-home-btn" id="contactGoHomeBtn" style="width:100%; display:none;" onclick="closeContactForm()">&larr; Go back to home page</button>
+      <button class="return-home-btn" id="contactCloseBtn" style="width:100%; background:#ffffff; color:var(--navy-dark); box-shadow:4px 4px 0px var(--navy-dark);" onclick="closeContactForm()">&larr; Close</button>
     </div>
   </div>
 
@@ -607,6 +609,9 @@
 
       var statusEl = document.getElementById('contactStatusMsg');
       var submitBtn = document.getElementById('contactSubmitBtn');
+      var goHomeBtn = document.getElementById('contactGoHomeBtn');
+      var closeBtn = document.getElementById('contactCloseBtn');
+      var form = document.getElementById('contactForm');
 
       var first = document.getElementById('firstName').value.trim();
       var last = document.getElementById('lastName').value.trim();
@@ -650,10 +655,11 @@
       .then(function(res){ return res.json(); })
       .then(function(data){
         statusEl.className = 'contact-status-msg success';
-        statusEl.textContent = 'Message sent! Thanks for reaching out — I\'ll get back to you soon.';
-        document.getElementById('contactForm').reset();
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Send Message';
+        statusEl.textContent = 'Inquiry submitted! \u{1F60A}';
+        form.reset();
+        form.style.display = 'none';
+        goHomeBtn.style.display = 'inline-block';
+        closeBtn.style.display = 'none';
       })
       .catch(function(err){
         /* Fallback: open the visitor's own mail app if the request itself fails */
