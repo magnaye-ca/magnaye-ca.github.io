@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PIXEL MARKET</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#d8c9a3;
+    --panel:#efe4c8;
+    --border:#3a2b1a;
+    --accent:#7a3b2e;
+    --accent2:#4f7a5c;
+    --gold:#c9962e;
+    --text:#2b2115;
+    --err:#b3261e;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{
+    background-color:var(--bg);
+    background-image:
+      linear-gradient(45deg, rgba(0,0,0,.04) 25%, transparent 25%, transparent 75%, rgba(0,0,0,.04) 75%),
+      linear-gradient(45deg, rgba(0,0,0,.04) 25%, transparent 25%, transparent 75%, rgba(0,0,0,.04) 75%);
+    background-size:16px 16px;
+    background-position:0 0, 8px 8px;
+    color:var(--text);
+    font-family:'VT323', monospace;
+    min-height:100vh;
+    padding:36px 16px 70px;
+  }
+  .pixel-font{ font-family:'Press Start 2P', monospace; }
+  .cursive{ font-family:'Dancing Script', cursive; }
+  .wrap{ max-width:960px; margin:0 auto; }
+
+  header{
+    text-align:center; margin-bottom:36px; padding:26px 20px 22px;
+    background:var(--panel); border:5px double var(--border);
+    box-shadow:8px 8px 0 var(--border), inset 0 0 0 6px var(--bg);
+    position:relative;
+  }
+  header::before, header::after{ content:"◆"; position:absolute; color:var(--gold); font-size:1.2rem; top:10px; }
+  header::before{ left:14px; } header::after{ right:14px; }
+  header h1{
+    font-family:'Press Start 2P', monospace;
+    font-size:clamp(1.3rem, 5vw, 2.3rem);
+    color:var(--accent);
+    text-shadow:3px 3px 0 var(--border), 6px 6px 0 rgba(122,59,46,.25);
+    letter-spacing:2px;
+  }
+  header p.tagline{ margin-top:10px; font-size:1.25rem; opacity:.75; }
+  header .signature{
+    margin-top:14px; font-size:1.7rem; color:var(--accent2);
+    font-variant-caps: small-caps; letter-spacing:1px; opacity:.9;
+  }
+  .sound-row{ display:flex; justify-content:center; margin-top:18px; }
+  .sound-toggle{
+    font-family:'Press Start 2P', monospace; font-size:.7rem;
+    background:var(--accent2); color:#fff; border:none;
+    padding:10px 16px; box-shadow:4px 4px 0 var(--border); cursor:pointer;
+  }
+  .sound-toggle:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--border); }
+
+  .pixel-panel{ background:var(--panel); border:5px double var(--border); box-shadow:8px 8px 0 var(--border); padding:26px; }
+
+  #standsView{ display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:22px; }
+  .stand-card{
+    cursor:pointer; text-align:center; padding:28px 14px;
+    background:#fffaf0; border:3px solid var(--border);
+    box-shadow:5px 5px 0 var(--border);
+    transition:transform .12s, box-shadow .12s;
+  }
+  .stand-card:hover{ transform:translate(-3px,-3px); box-shadow:9px 9px 0 var(--border); }
+  .stand-card:active{ transform:translate(2px,2px); box-shadow:2px 2px 0 var(--border); }
+  .stand-icon{ font-size:3rem; display:block; margin-bottom:12px; }
+  .stand-name{ font-family:'Press Start 2P', monospace; font-size:.85rem; color:var(--text); }
+
+  #basketView{ display:none; }
+  .back-btn{
+    font-family:'Press Start 2P', monospace; font-size:.75rem;
+    background:var(--accent2); color:#fff; border:none;
+    padding:12px 16px; box-shadow:4px 4px 0 var(--border); cursor:pointer; margin-bottom:22px;
+  }
+  .back-btn:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--border); }
+  #basketTitle{ font-family:'Press Start 2P', monospace; font-size:1.2rem; color:var(--accent); margin-bottom:20px; }
+
+  .basket-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:20px; }
+  .item-slot{ background:#fffaf0; border:3px dashed var(--border); padding:14px; text-align:center; overflow:hidden; }
+
+  .item-image{
+    width:100%; aspect-ratio:1/1; background:#e5dcc0; border:2px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    font-size:.9rem; color:#8a7a5c; margin-bottom:10px; overflow:hidden; position:relative;
+  }
+  .pixel-img-wrap{ width:100%; height:100%; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#000; }
+  .pixel-img-wrap img{
+    width:28px; height:28px; object-fit:cover;
+    image-rendering:pixelated; image-rendering:-moz-crisp-edges;
+    transform:scale(4.3);
+  }
+  .item-image img.gallery-img{ width:100%; height:100%; object-fit:cover; image-rendering:auto; transform:none; }
+
+  .emoji-stage{
+    width:100%; aspect-ratio:1/1;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:10px;
+    background:transparent;
+    position:relative;
+  }
+  .emoji-stage .glow{
+    position:absolute; width:70%; height:70%; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,215,120,.55), transparent 70%);
+    filter:blur(2px); animation:glowPulse 2.4s ease-in-out infinite;
+  }
+  .emoji-stage .fruit-emoji{
+    font-size:4.2rem; position:relative; z-index:2; display:inline-block;
+    animation:floatBounce 2.6s ease-in-out infinite;
+    filter:drop-shadow(0 6px 6px rgba(0,0,0,.25));
+    transition:transform .2s;
+  }
+  .item-slot:hover .fruit-emoji{ transform:scale(1.25) rotate(-6deg); }
+  @keyframes floatBounce{ 0%,100%{ transform:translateY(0) rotate(-3deg); } 50%{ transform:translateY(-14px) rotate(4deg); } }
+  @keyframes glowPulse{ 0%,100%{ opacity:.4; transform:scale(.9); } 50%{ opacity:.85; transform:scale(1.15); } }
+  .item-slot:nth-child(1) .fruit-emoji{ animation-delay:0s; }
+  .item-slot:nth-child(2) .fruit-emoji{ animation-delay:.4s; }
+  .item-slot:nth-child(3) .fruit-emoji{ animation-delay:.8s; }
+  .item-slot:nth-child(1) .glow{ animation-delay:0s; }
+  .item-slot:nth-child(2) .glow{ animation-delay:.4s; }
+  .item-slot:nth-child(3) .glow{ animation-delay:.8s; }
+
+  .item-name{ font-size:1.15rem; margin-bottom:4px; }
+  .item-price{
+    font-family:'Press Start 2P', monospace;
+    font-size:.75rem;
+    color:#fff;
+    background:var(--accent);
+    display:inline-block;
+    padding:4px 8px;
+    box-shadow:3px 3px 0 var(--border);
+    margin-bottom:8px;
+  }
+  .gallery-btn{
+    font-family:'Press Start 2P', monospace; font-size:.6rem;
+    background:var(--accent); color:#fff; border:none;
+    padding:6px 8px; box-shadow:3px 3px 0 var(--border); cursor:pointer; margin-top:6px;
+  }
+  .gallery-btn:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--border); }
+
+  .empty-basket{ text-align:center; padding:36px 0; opacity:.6; }
+  .coming-soon{ text-align:center; font-size:.9rem; color:var(--accent); opacity:.75; margin-top:18px; letter-spacing:.5px; }
+
+  .delivery-note{ margin-top:24px; border-top:3px dashed var(--border); padding-top:18px; }
+  .delivery-note .heads-up{
+    font-family:'Press Start 2P', monospace; font-size:.75rem; color:var(--accent);
+    margin-bottom:10px; text-align:center;
+  }
+  .delivery-note > p{ margin-bottom:10px; line-height:1.5; text-align:center; }
+
+  .price-box{
+    background:#fffaf0; border:2px solid var(--border);
+    padding:12px 16px; margin:14px 0 18px;
+    font-size:1.05rem;
+  }
+  .price-row{ display:flex; justify-content:space-between; padding:3px 0; }
+  .price-row.total{ font-weight:bold; border-top:2px dashed var(--border); margin-top:6px; padding-top:8px; color:var(--accent); }
+  .price-note{ font-size:.85rem; opacity:.7; margin-top:6px; text-align:center; }
+
+  .order-form{ display:flex; flex-direction:column; gap:12px; }
+  .form-grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .order-form label{ font-size:.95rem; opacity:.8; display:block; margin-bottom:4px; }
+  .order-form input, .order-form textarea, .order-form select{
+    width:100%; padding:8px 10px;
+    font-family:'VT323', monospace; font-size:1.05rem;
+    background:#fffdf3; border:2px solid var(--border); color:var(--text);
+  }
+  .order-form textarea{ min-height:80px; resize:vertical; }
+  .store-choice{ display:flex; gap:18px; align-items:center; font-size:1.05rem; }
+  .store-choice label{ display:flex; align-items:center; gap:6px; margin:0; opacity:1; }
+  .error-text{ color:var(--err); font-size:.85rem; display:none; margin-top:2px; }
+  .field.invalid .error-text{ display:block; }
+  .field.invalid input, .field.invalid textarea{ border-color:var(--err); }
+
+  .submit-order-btn{
+    font-family:'Press Start 2P', monospace; font-size:.8rem;
+    background:var(--accent); color:#fff; border:none;
+    padding:14px 18px; box-shadow:4px 4px 0 var(--border); cursor:pointer; margin-top:8px;
+  }
+  .submit-order-btn:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--border); }
+  .form-status{ font-size:.9rem; text-align:center; margin-top:8px; min-height:18px; }
+  .form-status.ok{ color:var(--accent2); }
+  .form-status.bad{ color:var(--err); }
+
+  .modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; z-index:50; padding:20px; }
+  .modal-overlay.open{ display:flex; }
+  .modal-box{ background:var(--panel); border:5px double var(--border); box-shadow:10px 10px 0 var(--border); padding:24px; max-width:640px; width:100%; }
+  .modal-box h3{ font-family:'Press Start 2P', monospace; font-size:.95rem; color:var(--accent); margin-bottom:16px; text-align:center; }
+  .modal-gallery{ display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:14px; margin-bottom:18px; }
+  .modal-gallery .item-image{ aspect-ratio:1/1; }
+  .modal-close{
+    display:block; margin:0 auto;
+    font-family:'Press Start 2P', monospace; font-size:.7rem;
+    background:var(--accent); color:#fff; border:none;
+    padding:10px 16px; box-shadow:4px 4px 0 var(--border); cursor:pointer;
+  }
+  .modal-close:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--border); }
+
+  footer{ text-align:center; margin-top:40px; padding:18px 16px; background:var(--panel); border:3px dashed var(--border); }
+  footer .footer-main{ font-size:1.1rem; color:var(--accent); margin-bottom:6px; }
+  footer .footer-sub{ font-size:.85rem; opacity:.65; }
+
+  @media (max-width:520px){ .form-grid-2{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>🛒 PIXEL MARKET</h1>
+    <p class="tagline">pick a stand. see what's inside.</p>
+    <p class="signature cursive">by carlo angelo magnaye</p>
+    <div class="sound-row">
+      <button class="sound-toggle" id="soundToggle" type="button">🔈 SOUND: OFF</button>
+    </div>
+  </header>
+
+  <div id="standsView" class="pixel-panel"></div>
+
+  <div id="basketView" class="pixel-panel">
+    <button class="back-btn" id="backBtn" type="button">&lt; BACK TO MARKET</button>
+    <h2 id="basketTitle" class="pixel-font"></h2>
+    <div class="basket-grid" id="basketGrid"></div>
+    <div id="extraContent"></div>
+  </div>
+
+  <footer>
+    <div class="footer-main">🧵 a lil virtual thrift corner — just my own space, mostly for fun.</div>
+    <div class="footer-sub">but hey, if you're ever in a pinch, hit me up — happy to help out, no biggie.</div>
+  </footer>
+</div>
+
+<div class="modal-overlay" id="galleryModal">
+  <div class="modal-box">
+    <h3 id="galleryTitle">GALLERY</h3>
+    <div class="modal-gallery" id="galleryGrid"></div>
+    <button class="modal-close" id="galleryClose" type="button">CLOSE</button>
+  </div>
+</div>
+
+<audio id="bgMusicFile" loop></audio>
+<audio id="clickSoundFile"></audio>
+
+<script>
+/* =========================================================
+   EDIT HERE #1 — where real orders get sent
+   ========================================================= */
+const ORDER_EMAIL_ENDPOINT = "https://formsubmit.co/bojospotify.ca@gmail.com";
+const SERVICE_FEE = 5.00;
+const REQUIRED_TIP = 8.50;
+
+/* =========================================================
+   EDIT HERE #2 — SAVE YOUR KEYBOARD FILES HERE
+   ========================================================= */
+const KEYBOARD_MAIN_IMAGE = "keyboard-main.gif";
+const TECH_GALLERY_IMAGES = ["keyboard-1.jpg", "keyboard-2.jpg", "keyboard-3.jpg"];
+
+/* =========================================================
+   EDIT HERE #3 — stands and items
+   Items can have a "price" field (just plain text) that
+   shows as a lil pixel price tag under the item name.
+   ========================================================= */
+const STANDS = [
+  {
+    id:"fruit", name:"FRUIT STAND", icon:"🍎",
+    items:[
+      { name:"Apple",  emoji:"🍎" },
+      { name:"Banana", emoji:"🍌" },
+      { name:"Grapes", emoji:"🍇" }
+    ],
+    showOrderForm:true
+  },
+  {
+    id:"tech", name:"TECH STALL", icon:"💾",
+    items:[
+      { name:"Keyboard", image:KEYBOARD_MAIN_IMAGE, hasGallery:true, pixelate:false, price:"CAD $25 · no tax · OBO" }
+    ],
+    showComingSoon:true
+  },
+  {
+    id:"music", name:"MUSIC BOOTH", icon:"📼",
+    items:[],
+    showComingSoon:true
+  }
+];
+
+/* =========================================================
+   EDIT HERE #4 — optional real sound files
+   ========================================================= */
+const REAL_CLICK_FILE = "";
+const REAL_BG_MUSIC_FILE = "";
+
+/* =========================================================
+   Nothing below this needs editing for normal use.
+   ========================================================= */
+const standsView = document.getElementById('standsView');
+const basketView = document.getElementById('basketView');
+const basketGrid = document.getElementById('basketGrid');
+const basketTitle = document.getElementById('basketTitle');
+const extraContent = document.getElementById('extraContent');
+const backBtn = document.getElementById('backBtn');
+const soundToggle = document.getElementById('soundToggle');
+const bgMusicFile = document.getElementById('bgMusicFile');
+const clickSoundFile = document.getElementById('clickSoundFile');
+const galleryModal = document.getElementById('galleryModal');
+const galleryGrid = document.getElementById('galleryGrid');
+const galleryTitle = document.getElementById('galleryTitle');
+const galleryClose = document.getElementById('galleryClose');
+
+let soundOn = false;
+let audioCtx = null;
+let bgOscillators = [];
+let bgGain = null;
+
+if(REAL_CLICK_FILE) clickSoundFile.src = REAL_CLICK_FILE;
+if(REAL_BG_MUSIC_FILE) bgMusicFile.src = REAL_BG_MUSIC_FILE;
+
+function ensureCtx(){
+  if(!audioCtx){ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+  if(audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+}
+function playGeneratedClick(){
+  ensureCtx();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'square';
+  osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime + 0.08);
+  gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.09);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+}
+function playClick(){
+  if(!soundOn) return;
+  if(REAL_CLICK_FILE){ clickSoundFile.currentTime = 0; clickSoundFile.play().catch(()=>{}); }
+  else{ playGeneratedClick(); }
+}
+function startGeneratedBg(){
+  ensureCtx();
+  bgGain = audioCtx.createGain(); bgGain.gain.value = 0.05; bgGain.connect(audioCtx.destination);
+  [130.81, 164.81].forEach(freq => {
+    const osc = audioCtx.createOscillator();
+    osc.type = 'sine'; osc.frequency.value = freq;
+    osc.connect(bgGain); osc.start();
+    bgOscillators.push(osc);
+  });
+}
+function stopGeneratedBg(){
+  bgOscillators.forEach(o => { try{ o.stop(); }catch(e){} });
+  bgOscillators = [];
+  if(bgGain){ bgGain.disconnect(); bgGain = null; }
+}
+function startBg(){
+  if(REAL_BG_MUSIC_FILE){ bgMusicFile.volume = 0.35; bgMusicFile.play().catch(()=>{}); }
+  else{ startGeneratedBg(); }
+}
+function stopBg(){
+  if(REAL_BG_MUSIC_FILE){ bgMusicFile.pause(); }
+  else{ stopGeneratedBg(); }
+}
+soundToggle.addEventListener('click', () => {
+  soundOn = !soundOn;
+  soundToggle.textContent = soundOn ? '🔊 SOUND: ON' : '🔈 SOUND: OFF';
+  ensureCtx();
+  if(soundOn){ startBg(); } else { stopBg(); }
+});
+
+function renderStands(){
+  standsView.innerHTML = '';
+  STANDS.forEach(stand => {
+    const card = document.createElement('div');
+    card.className = 'stand-card';
+    card.innerHTML = `
+      <span class="stand-icon">${stand.icon}</span>
+      <span class="stand-name">${stand.name}</span>
+    `;
+    card.addEventListener('click', () => { playClick(); openBasket(stand.id); });
+    standsView.appendChild(card);
+  });
+}
+
+function itemVisualHtml(item){
+  if(item.emoji){
+    return `
+      <div class="emoji-stage">
+        <div class="glow"></div>
+        <span class="fruit-emoji">${item.emoji}</span>
+      </div>
+    `;
+  }
+  if(!item.image){
+    return `<div class="item-image">add image/gif here</div>`;
+  }
+  if(item.pixelate === false){
+    return `<div class="item-image"><img class="gallery-img" src="${item.image}" alt="${item.name}"></div>`;
+  }
+  return `<div class="item-image"><div class="pixel-img-wrap"><img src="${item.image}" alt="${item.name}"></div></div>`;
+}
+
+function buildOrderFormHtml(){
+  const total = (SERVICE_FEE + REQUIRED_TIP).toFixed(2);
+  return `
+    <div class="delivery-note">
+      <div class="heads-up">📦 PLACE A REAL ORDER</div>
+      <p>Hey! This is a real personal thing, not an actual store — think one-person DoorDash. I grab your stuff from Walmart or No Frills myself and drop it off. Fill this out and it comes straight to me.</p>
+
+      <div class="price-box">
+        <div class="price-row"><span>Service fee</span><span>$${SERVICE_FEE.toFixed(2)} CAD</span></div>
+        <div class="price-row"><span>Tip (required, in case I get really thirsty lol)</span><span>$${REQUIRED_TIP.toFixed(2)} CAD</span></div>
+        <div class="price-row total"><span>Due on delivery</span><span>$${total} CAD</span></div>
+        <div class="price-note">+ the cost of whatever items you're ordering, paid back to me directly.</div>
+      </div>
+
+      <form class="order-form" id="orderForm" action="${ORDER_EMAIL_ENDPOINT}" method="POST">
+        <input type="hidden" name="_subject" value="🍎 New Fruit Stand Order — Pixel Market">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="true">
+
+        <div class="form-grid-2">
+          <div class="field" id="fieldFirst">
+            <label for="firstName">First name</label>
+            <input type="text" id="firstName" name="First Name" required>
+            <div class="error-text">please enter your first name</div>
+          </div>
+          <div class="field" id="fieldLast">
+            <label for="lastName">Last name</label>
+            <input type="text" id="lastName" name="Last Name" required>
+            <div class="error-text">please enter your last name</div>
+          </div>
+        </div>
+
+        <div class="field" id="fieldEmail">
+          <label for="replyEmail">Your email (so I can reply about pickup/drop-off)</label>
+          <input type="email" id="replyEmail" name="Reply Email" required placeholder="you@example.com">
+          <div class="error-text">please enter a valid email address</div>
+        </div>
+
+        <div class="field">
+          <label>Which store should I grab from?</label>
+          <div class="store-choice">
+            <label><input type="radio" name="Store" value="Walmart" checked> Walmart</label>
+            <label><input type="radio" name="Store" value="No Frills"> No Frills</label>
+          </div>
+        </div>
+
+        <div class="field" id="fieldItems">
+          <label for="itemsWanted">What do you need? (item + quantity)</label>
+          <textarea id="itemsWanted" name="Items Requested" required placeholder="e.g. 2x apples, 1 bunch of bananas"></textarea>
+          <div class="error-text">let me know what you'd like</div>
+        </div>
+
+        <button class="submit-order-btn" type="submit">📧 SEND MY ORDER</button>
+        <div class="form-status" id="formStatus"></div>
+      </form>
+    </div>
+  `;
+}
+
+function openBasket(standId){
+  const stand = STANDS.find(s => s.id === standId);
+  if(!stand) return;
+  basketTitle.textContent = stand.icon + ' ' + stand.name;
+  basketGrid.innerHTML = '';
+  extraContent.innerHTML = '';
+
+  if(stand.items.length === 0){
+    basketGrid.innerHTML = '<div class="empty-basket">Nothing here yet.</div>';
+  } else {
+    stand.items.forEach(item => {
+      const slot = document.createElement('div');
+      slot.className = 'item-slot';
+      const galleryBtnHtml = item.hasGallery
+        ? `<button class="gallery-btn openGalleryBtn" type="button">🖼 VIEW GALLERY</button>`
+        : '';
+      const priceHtml = item.price
+        ? `<div class="item-price">${item.price}</div>`
+        : '';
+      slot.innerHTML = `
+        ${itemVisualHtml(item)}
+        <div class="item-name">${item.name}</div>
+        ${priceHtml}
+        ${galleryBtnHtml}
+      `;
+      if(item.hasGallery){
+        slot.querySelector('.openGalleryBtn').addEventListener('click', () => {
+          playClick();
+          openGallery(item.name);
+        });
+      }
+      basketGrid.appendChild(slot);
+    });
+  }
+
+  if(stand.showComingSoon){
+    const note = document.createElement('div');
+    note.className = 'coming-soon';
+    note.textContent = '🚧 more coming soon...';
+    extraContent.appendChild(note);
+  }
+
+  if(stand.showOrderForm){
+    extraContent.innerHTML = buildOrderFormHtml();
+    wireOrderForm();
+  }
+
+  standsView.style.display = 'none';
+  basketView.style.display = 'block';
+}
+
+function wireOrderForm(){
+  const form = document.getElementById('orderForm');
+  const status = document.getElementById('formStatus');
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  form.addEventListener('submit', (e) => {
+    let valid = true;
+
+    const first = document.getElementById('firstName');
+    const last = document.getElementById('lastName');
+    const email = document.getElementById('replyEmail');
+    const items = document.getElementById('itemsWanted');
+
+    const toggle = (fieldId, ok) => {
+      document.getElementById(fieldId).classList.toggle('invalid', !ok);
+    };
+
+    const firstOk = first.value.trim().length > 0;
+    const lastOk = last.value.trim().length > 0;
+    const emailOk = emailRegex.test(email.value.trim());
+    const itemsOk = items.value.trim().length > 0;
+
+    toggle('fieldFirst', firstOk);
+    toggle('fieldLast', lastOk);
+    toggle('fieldEmail', emailOk);
+    toggle('fieldItems', itemsOk);
+
+    valid = firstOk && lastOk && emailOk && itemsOk;
+
+    if(!valid){
+      e.preventDefault();
+      status.textContent = '⚠ please fix the highlighted fields above';
+      status.className = 'form-status bad';
+      return;
+    }
+
+    status.textContent = '📨 sending your order...';
+    status.className = 'form-status ok';
+    playClick();
+  });
+}
+
+function openGallery(itemName){
+  galleryTitle.textContent = '🖼 ' + itemName.toUpperCase() + ' GALLERY';
+  galleryGrid.innerHTML = '';
+  TECH_GALLERY_IMAGES.forEach((url) => {
+    const box = document.createElement('div');
+    box.className = 'item-image';
+    box.innerHTML = url
+      ? `<img class="gallery-img" src="${url}" alt="gallery photo">`
+      : 'photo coming soon';
+    galleryGrid.appendChild(box);
+  });
+  galleryModal.classList.add('open');
+}
+galleryClose.addEventListener('click', () => {
+  playClick();
+  galleryModal.classList.remove('open');
+});
+galleryModal.addEventListener('click', (e) => {
+  if(e.target === galleryModal) galleryModal.classList.remove('open');
+});
+
+backBtn.addEventListener('click', () => {
+  playClick();
+  basketView.style.display = 'none';
+  standsView.style.display = 'grid';
+});
+
+renderStands();
+</script>
+
+</body>
+</html>
