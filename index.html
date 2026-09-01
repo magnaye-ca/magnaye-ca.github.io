@@ -604,6 +604,24 @@
       document.getElementById('contactModal').classList.remove('active');
     }
 
+    function resetContactModal(){
+      var statusEl = document.getElementById('contactStatusMsg');
+      var submitBtn = document.getElementById('contactSubmitBtn');
+      var goHomeBtn = document.getElementById('contactGoHomeBtn');
+      var closeBtn = document.getElementById('contactCloseBtn');
+      var form = document.getElementById('contactForm');
+
+      statusEl.className = 'contact-status-msg';
+      statusEl.style.display = 'none';
+      statusEl.textContent = '';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send Message';
+      form.style.display = 'block';
+      form.reset();
+      goHomeBtn.style.display = 'none';
+      closeBtn.style.display = 'inline-block';
+    }
+
     function submitContactForm(event){
       event.preventDefault();
 
@@ -622,6 +640,7 @@
 
       if(!first || !last || !senderEmail || !question){
         statusEl.className = 'contact-status-msg error';
+        statusEl.style.display = 'block';
         statusEl.textContent = 'Please fill out all required fields.';
         return;
       }
@@ -655,6 +674,7 @@
       .then(function(res){ return res.json(); })
       .then(function(data){
         statusEl.className = 'contact-status-msg success';
+        statusEl.style.display = 'block';
         statusEl.textContent = 'Inquiry submitted! \u{1F60A}';
         form.reset();
         form.style.display = 'none';
@@ -664,6 +684,7 @@
       .catch(function(err){
         /* Fallback: open the visitor's own mail app if the request itself fails */
         statusEl.className = 'contact-status-msg error';
+        statusEl.style.display = 'block';
         statusEl.textContent = 'Could not send automatically — opening your email app as a backup.';
         submitBtn.disabled = false;
         submitBtn.textContent = 'Send Message';
