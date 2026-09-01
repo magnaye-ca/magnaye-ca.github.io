@@ -389,7 +389,7 @@
   @keyframes modalFadeIn{ from{ opacity: 0; transform: scale(0.95); } to{ opacity: 1; transform: scale(1); } }
   @keyframes coneWiggle{ 0%,100%{ transform: translateY(0) rotate(0deg); } 25%{ transform: translateY(-4px) rotate(-3deg); } 75%{ transform: translateY(-4px) rotate(3deg); } }
 
-  /* --- Contact form additions (new, task-specific) --- */
+  /* --- Contact form additions --- */
   .contact-modal-card{ max-width: 440px; text-align: left; }
   .contact-form{ text-align: left; margin-top: 6px; }
   .form-group{ margin-bottom: 14px; }
@@ -417,6 +417,13 @@
     padding: 10px 26px; border-radius: 4px; cursor: pointer; width: 100%; margin-bottom: 10px; transition: all 0.15s ease;
   }
   .submit-contact-btn:hover{ background-color: #173872; transform: translateY(-2px); box-shadow: 5px 5px 0px var(--navy-dark); }
+  .submit-contact-btn:disabled{ opacity: 0.6; cursor: not-allowed; transform: none; }
+  .contact-status-msg{
+    font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; text-align: center;
+    padding: 8px; border-radius: 4px; margin-bottom: 10px; display: none;
+  }
+  .contact-status-msg.success{ display: block; background: #e8f7ee; color: #1a7a3d; border: 1.5px solid #1a7a3d; }
+  .contact-status-msg.error{ display: block; background: #fdeaea; color: #a11d1d; border: 1.5px solid #a11d1d; }
 
   @media (max-width: 768px){
     header{ padding: 16px 20px; }
@@ -509,7 +516,9 @@
       <h2 class="modal-header-title" style="text-align:center;">LET'S TALK!</h2>
       <p class="modal-body-text" style="text-align:center;">Fill this out and I'll get your message straight to my inbox.</p>
 
-      <form class="contact-form" id="contactForm" onsubmit="submitContactForm(event)">
+      <div class="contact-status-msg" id="contactStatusMsg"></div>
+
+      <form class="contact-form" id="contactForm">
         <div class="form-name-row">
           <div class="form-group">
             <label class="form-label" for="firstName">First Name</label>
@@ -523,6 +532,10 @@
         <div class="form-group">
           <label class="form-label" for="middleName">Middle Name (optional)</label>
           <input class="form-input" type="text" id="middleName">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="senderEmail">Your Email (so I can reply)</label>
+          <input class="form-input" type="email" id="senderEmail" required>
         </div>
 
         <div class="form-group">
@@ -539,7 +552,7 @@
           <textarea class="form-textarea" id="questionMsg" rows="4" required></textarea>
         </div>
 
-        <button type="submit" class="submit-contact-btn">Send Message</button>
+        <button type="submit" class="submit-contact-btn" id="contactSubmitBtn" onclick="submitContactForm(event)">Send Message</button>
       </form>
       <button class="return-home-btn" style="width:100%; background:#ffffff; color:var(--navy-dark); box-shadow:4px 4px 0px var(--navy-dark);" onclick="closeContactForm()">&larr; Close</button>
     </div>
@@ -588,34 +601,71 @@
     function closeContactForm(){
       document.getElementById('contactModal').classList.remove('active');
     }
+
     function submitContactForm(event){
       event.preventDefault();
+
+      var statusEl = document.getElementById('contactStatusMsg');
+      var submitBtn = document.getElementById('contactSubmitBtn');
 
       var first = document.getElementById('firstName').value.trim();
       var last = document.getElementById('lastName').value.trim();
       var middle = document.getElementById('middleName').value.trim();
+      var senderEmail = document.getElementById('senderEmail').value.trim();
       var reason = document.querySelector('input[name="reason"]:checked').value;
       var question = document.getElementById('questionMsg').value.trim();
 
+      if(!first || !last || !senderEmail || !question){
+        statusEl.className = 'contact-status-msg error';
+        statusEl.textContent = 'Please fill out all required fields.';
+        return;
+      }
+
       var fullName = first + (middle ? (' ' + middle + ' ') : ' ') + last;
 
-      /* Recipient address kept out of visible markup, assembled at send-time */
+      /* Recipient kept out of visible markup, assembled at send-time */
       var addrUser = 'bojospotify.ca';
       var addrDomain = 'gmail.com';
       var recipient = addrUser + '@' + addrDomain;
 
-      var subject = 'magnaye-ca. contact — ' + reason;
-      var body = 'Name: ' + fullName + '\n' +
-                 'Reason: ' + reason + '\n\n' +
-                 'Message:\n' + question;
+      var formData = new FormData();
+      formData.append('_subject', 'magnaye-ca. contact — ' + reason);
+      formData.append('name', fullName);
+      formData.append('email', senderEmail);
+      formData.append('reason', reason);
+      formData.append('message', question);
+      formData.append('_template', 'table');
+      formData.append('_captcha', 'false');
 
-      var mailtoLink = 'mailto:' + recipient +
-                        '?subject=' + encodeURIComponent(subject) +
-                        '&body=' + encodeURIComponent(body);
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+      statusEl.className = 'contact-status-msg';
+      statusEl.style.display = 'none';
 
-      window.location.href = mailtoLink;
-      closeContactForm();
-      document.getElementById('contactForm').reset();
+      fetch('https://formsubmit.co/ajax/' + recipient, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: formData
+      })
+      .then(function(res){ return res.json(); })
+      .then(function(data){
+        statusEl.className = 'contact-status-msg success';
+        statusEl.textContent = 'Message sent! Thanks for reaching out — I\'ll get back to you soon.';
+        document.getElementById('contactForm').reset();
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Message';
+      })
+      .catch(function(err){
+        /* Fallback: open the visitor's own mail app if the request itself fails */
+        statusEl.className = 'contact-status-msg error';
+        statusEl.textContent = 'Could not send automatically — opening your email app as a backup.';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Message';
+
+        var subject = 'magnaye-ca. contact — ' + reason;
+        var body = 'Name: ' + fullName + '\nEmail: ' + senderEmail + '\nReason: ' + reason + '\n\nMessage:\n' + question;
+        window.location.href = 'mailto:' + recipient + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+      });
     }
 
     document.addEventListener('keydown', function(e){
