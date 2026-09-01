@@ -389,6 +389,35 @@
   @keyframes modalFadeIn{ from{ opacity: 0; transform: scale(0.95); } to{ opacity: 1; transform: scale(1); } }
   @keyframes coneWiggle{ 0%,100%{ transform: translateY(0) rotate(0deg); } 25%{ transform: translateY(-4px) rotate(-3deg); } 75%{ transform: translateY(-4px) rotate(3deg); } }
 
+  /* --- Contact form additions (new, task-specific) --- */
+  .contact-modal-card{ max-width: 440px; text-align: left; }
+  .contact-form{ text-align: left; margin-top: 6px; }
+  .form-group{ margin-bottom: 14px; }
+  .form-label{
+    font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700;
+    color: var(--navy-dark); display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .form-input, .form-textarea{
+    width: 100%; font-family: var(--font-mono); font-size: 0.9rem; color: var(--navy-dark);
+    background: #f4f8fc; border: 1.5px solid var(--navy-dark); border-radius: 4px;
+    padding: 9px 10px; outline: none; resize: vertical;
+  }
+  .form-input:focus, .form-textarea:focus{ border-color: #0b328a; background: #ffffff; }
+  .form-name-row{ display: flex; gap: 8px; }
+  .form-name-row .form-group{ flex: 1; }
+  .radio-group{ display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .radio-option{
+    display: flex; align-items: center; gap: 8px; font-family: var(--font-mono);
+    font-size: 0.85rem; font-weight: 700; color: var(--navy-dark); cursor: pointer;
+  }
+  .radio-option input{ accent-color: var(--navy-dark); width: 15px; height: 15px; cursor: pointer; }
+  .submit-contact-btn{
+    font-family: var(--font-mono); font-size: 0.95rem; font-weight: 700; color: #ffffff;
+    background-color: var(--navy-dark); border: 2px solid var(--navy-dark); box-shadow: 4px 4px 0px #173667;
+    padding: 10px 26px; border-radius: 4px; cursor: pointer; width: 100%; margin-bottom: 10px; transition: all 0.15s ease;
+  }
+  .submit-contact-btn:hover{ background-color: #173872; transform: translateY(-2px); box-shadow: 5px 5px 0px var(--navy-dark); }
+
   @media (max-width: 768px){
     header{ padding: 16px 20px; }
     footer{ padding: 16px 20px; }
@@ -435,7 +464,7 @@
         </div>
         <div class="nav-row">
           <span class="nav-icon">🤖</span>
-          <a class="nav-link" href="javascript:void(0)" onclick="showUnderConstruction('contact')">contact</a>
+          <a class="nav-link" href="javascript:void(0)" onclick="openContactForm()">contact</a>
         </div>
       </div>
 
@@ -470,6 +499,49 @@
       <p class="modal-body-text" id="modalBodyText">This page is currently under construction and being crafted with care. Please check back soon!</p>
       <a class="modal-visit-link" id="modalVisitLink" href="#" target="_blank" rel="noopener" style="display:none;">visit magnaye-ca.univer.se &rarr;</a>
       <button class="return-home-btn" onclick="closeUnderConstruction()">&larr; Return to Main Page</button>
+    </div>
+  </div>
+
+  <!-- Contact form modal -->
+  <div class="modal-backdrop" id="contactModal" onclick="closeContactForm(event)">
+    <div class="modal-card contact-modal-card" onclick="event.stopPropagation()">
+      <div class="modal-barrier-icon" style="text-align:center;">📨</div>
+      <h2 class="modal-header-title" style="text-align:center;">LET'S TALK!</h2>
+      <p class="modal-body-text" style="text-align:center;">Fill this out and I'll get your message straight to my inbox.</p>
+
+      <form class="contact-form" id="contactForm" onsubmit="submitContactForm(event)">
+        <div class="form-name-row">
+          <div class="form-group">
+            <label class="form-label" for="firstName">First Name</label>
+            <input class="form-input" type="text" id="firstName" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="lastName">Last Name</label>
+            <input class="form-input" type="text" id="lastName" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="middleName">Middle Name (optional)</label>
+          <input class="form-input" type="text" id="middleName">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Reason for Reaching Out</label>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="reason" value="General Enquiry" checked> General enquiry</label>
+            <label class="radio-option"><input type="radio" name="reason" value="Ask Me Something"> Ask me something</label>
+            <label class="radio-option"><input type="radio" name="reason" value="Second-Hand Store"> Second-hand store (stuff I no longer use)</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="questionMsg">Your Question / Message</label>
+          <textarea class="form-textarea" id="questionMsg" rows="4" required></textarea>
+        </div>
+
+        <button type="submit" class="submit-contact-btn">Send Message</button>
+      </form>
+      <button class="return-home-btn" style="width:100%; background:#ffffff; color:var(--navy-dark); box-shadow:4px 4px 0px var(--navy-dark);" onclick="closeContactForm()">&larr; Close</button>
     </div>
   </div>
 
@@ -508,8 +580,49 @@
     function closeUnderConstruction(){
       document.getElementById('constructionModal').classList.remove('active');
     }
+
+    /* --- Contact form logic --- */
+    function openContactForm(){
+      document.getElementById('contactModal').classList.add('active');
+    }
+    function closeContactForm(){
+      document.getElementById('contactModal').classList.remove('active');
+    }
+    function submitContactForm(event){
+      event.preventDefault();
+
+      var first = document.getElementById('firstName').value.trim();
+      var last = document.getElementById('lastName').value.trim();
+      var middle = document.getElementById('middleName').value.trim();
+      var reason = document.querySelector('input[name="reason"]:checked').value;
+      var question = document.getElementById('questionMsg').value.trim();
+
+      var fullName = first + (middle ? (' ' + middle + ' ') : ' ') + last;
+
+      /* Recipient address kept out of visible markup, assembled at send-time */
+      var addrUser = 'bojospotify.ca';
+      var addrDomain = 'gmail.com';
+      var recipient = addrUser + '@' + addrDomain;
+
+      var subject = 'magnaye-ca. contact — ' + reason;
+      var body = 'Name: ' + fullName + '\n' +
+                 'Reason: ' + reason + '\n\n' +
+                 'Message:\n' + question;
+
+      var mailtoLink = 'mailto:' + recipient +
+                        '?subject=' + encodeURIComponent(subject) +
+                        '&body=' + encodeURIComponent(body);
+
+      window.location.href = mailtoLink;
+      closeContactForm();
+      document.getElementById('contactForm').reset();
+    }
+
     document.addEventListener('keydown', function(e){
-      if(e.key === 'Escape') closeUnderConstruction();
+      if(e.key === 'Escape'){
+        closeUnderConstruction();
+        closeContactForm();
+      }
     });
   </script>
 
