@@ -431,6 +431,19 @@
     .avatar-callout{ right: 16px; bottom: 16px; }
     .nav-box{ padding: 16px 18px; }
   }
+
+  /* =========================================================
+     NEW — button press animation only (added, nothing above
+     this comment was changed)
+     ========================================================= */
+  @keyframes btnPopSound{
+    0%{ transform: scale(1); }
+    40%{ transform: scale(0.9); }
+    100%{ transform: scale(1); }
+  }
+  .sfx-pop{
+    animation: btnPopSound 0.22s ease;
+  }
 </style>
 </head>
 <body>
@@ -700,6 +713,111 @@
         closeContactForm();
       }
     });
+  </script>
+
+  <!-- =========================================================
+       NEW SCRIPT — 8-bit button sounds + tiny press animation.
+       Everything above this comment is exactly as you had it.
+       Each button gets its own unique little chiptune blip,
+       generated live with the Web Audio API (no audio files,
+       no copyright, nothing downloaded).
+       ========================================================= -->
+  <script>
+    (function(){
+      var audioCtx = null;
+      function ensureCtx(){
+        if(!audioCtx){
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if(audioCtx.state === 'suspended'){ audioCtx.resume().catch(function(){}); }
+        return audioCtx;
+      }
+
+      // Plays a short sequence of tones back-to-back — this is how
+      // each button gets its own distinct little "signature" sound.
+      function playChiptune(notes, waveType, noteDur){
+        var ctx = ensureCtx();
+        var t = ctx.currentTime;
+        notes.forEach(function(freq, i){
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = waveType;
+          osc.frequency.setValueAtTime(freq, t + i * noteDur);
+          gain.gain.setValueAtTime(0.12, t + i * noteDur);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + i * noteDur + noteDur * 0.9);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(t + i * noteDur);
+          osc.stop(t + i * noteDur + noteDur);
+        });
+      }
+
+      function popAnim(el){
+        el.classList.remove('sfx-pop');
+        // restart animation even if clicked rapidly
+        void el.offsetWidth;
+        el.classList.add('sfx-pop');
+      }
+
+      // Unique sound "recipes" per button — different waveform,
+      // notes, and speed so no two buttons sound the same.
+      var SOUND_ABOUT   = { notes:[523, 659],      wave:'sine',     dur:0.09 };
+      var SOUND_BLOG    = { notes:[392, 494],      wave:'square',   dur:0.10 };
+      var SOUND_STORE   = { notes:[261, 329, 392], wave:'triangle', dur:0.08 };
+      var SOUND_CONTACT = { notes:[440],           wave:'triangle', dur:0.14 };
+      var SOUND_LOFI    = { notes:[523, 392],      wave:'sawtooth', dur:0.11 };
+      var SOUND_AVATAR  = { notes:[587, 698],      wave:'sine',     dur:0.09 };
+      var SOUND_RETURN  = { notes:[330, 220],      wave:'square',   dur:0.08 };
+      var SOUND_SUBMIT  = { notes:[523, 659, 784], wave:'triangle', dur:0.09 };
+      var SOUND_VISIT   = { notes:[466],           wave:'sawtooth', dur:0.12 };
+
+      function wireInstant(el, sound){
+        if(!el) return;
+        el.addEventListener('click', function(){
+          popAnim(el);
+          playChiptune(sound.notes, sound.wave, sound.dur);
+        });
+      }
+
+      // For real links that navigate the current tab away, we play
+      // the sound + animation first, then let the page move on
+      // shortly after so the blip actually gets heard.
+      function wireDelayedNav(el, sound, href, delayMs){
+        if(!el) return;
+        el.addEventListener('click', function(e){
+          e.preventDefault();
+          popAnim(el);
+          playChiptune(sound.notes, sound.wave, sound.dur);
+          window.setTimeout(function(){
+            window.location.href = href;
+          }, delayMs);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', function(){
+        var navLinks = document.querySelectorAll('.nav-link');
+        // DOM order: about me, blog, my store, contact
+        if(navLinks[0]) wireInstant(navLinks[0], SOUND_ABOUT);
+        if(navLinks[1]) wireInstant(navLinks[1], SOUND_BLOG);
+        if(navLinks[2]) wireDelayedNav(navLinks[2], SOUND_STORE, navLinks[2].getAttribute('href'), 140);
+        if(navLinks[3]) wireInstant(navLinks[3], SOUND_CONTACT);
+
+        var lofiBtn = document.querySelector('.lofi-pill-btn');
+        if(lofiBtn) wireDelayedNav(lofiBtn, SOUND_LOFI, lofiBtn.getAttribute('href'), 140);
+
+        var avatarLink = document.querySelector('.avatar-callout');
+        if(avatarLink) wireDelayedNav(avatarLink, SOUND_AVATAR, avatarLink.getAttribute('href'), 140);
+
+        var returnBtns = document.querySelectorAll('.return-home-btn');
+        returnBtns.forEach(function(btn){ wireInstant(btn, SOUND_RETURN); });
+
+        var submitBtn = document.getElementById('contactSubmitBtn');
+        if(submitBtn) wireInstant(submitBtn, SOUND_SUBMIT);
+
+        var visitLink = document.getElementById('modalVisitLink');
+        if(visitLink) wireInstant(visitLink, SOUND_VISIT);
+      });
+    })();
   </script>
 
 </body>
